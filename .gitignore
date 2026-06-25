@@ -7,7 +7,6 @@ xschem-src/src/rawtovcd
 xschem-src/config.log
 xschem-src/config.status
 xschem-src/config.cache
-xschem-src/Makefile
 xschem-src/src/Makefile
 
 # Editor
