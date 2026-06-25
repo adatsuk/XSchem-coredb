@@ -48,10 +48,11 @@ CORE schematic views store integer DBU with `dbuPerEditorUnit` (Qucs = 1, Xschem
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yaml`) builds on **Rocky Linux 8** (RHEL 8 compatible):
+GitHub Actions (`.github/workflows/ci.yaml`) on **Rocky Linux 8** (RHEL 8 compatible):
 
-- **xschem** — `configure` + `make` in `xschem-src/`
-- **coretcl.so** — checks out CommonDB, bootstraps Cap'n Proto (cached), runs `build-core-tcl.sh`
+- **coretcl.so** — checks out private **CommonDB** (`COMMONDDB_CHECKOUT_TOKEN`), bootstraps Cap'n Proto (cached), runs `build-core-tcl.sh`
+
+Manual run: **Actions → CI → Run workflow**.
 
 ## License
 
