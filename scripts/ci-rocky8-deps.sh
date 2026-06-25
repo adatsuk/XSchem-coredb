@@ -15,5 +15,5 @@ dnf install -y \
   autoconf automake libtool zlib-devel \
   flex bison gawk \
   tcl tcl-devel tk tk-devel \
-  cairo-devel libXpm-devel libXrender-devel libxcb-devel libX11-devel libX11-xcb-devel \
+  cairo-devel libXpm-devel libXrender-devel libxcb-devel libX11-devel \
   libjpeg-turbo-devel patchelf
