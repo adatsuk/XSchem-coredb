@@ -15,6 +15,7 @@ find "$SRC" -type f \( -name '*.sh' -o -name 'configure' -o -name 'Makefile.in' 
   -exec sed -i 's/\r$//' {} +
 
 cd "$SRC"
+chmod +x configure
 ./configure --prefix="$PREFIX"
 make -j"$(nproc)"
 make install
