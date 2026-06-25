@@ -4,40 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build-xschem-rocky8:
-    name: xschem (Rocky Linux 8)
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:8
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: bash scripts/ci-rocky8-deps.sh
-
-      - name: Configure and build xschem
-        working-directory: xschem-src
-        run: |
-          sed -i 's/\r$//' configure Makefile.in src/*.awk 2>/dev/null || true
-          ./configure --prefix=/usr/local
-          make -j"$(nproc)"
-
-      - name: Verify binary
-        working-directory: xschem-src
-        run: test -x src/xschem
-
-      - name: Upload xschem binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: xschem-rocky8
-          path: xschem-src/src/xschem
-
   build-coretcl-rocky8:
-    name: coretcl.so (Rocky Linux 8 + CommonDB)
+    name: coretcl.so + CommonDB (Rocky Linux 8)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     container:
