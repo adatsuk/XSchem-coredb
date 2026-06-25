@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-coretcl-rocky8:
-    name: coretcl.so + CommonDB (Rocky Linux 8)
+  build-xschem-rocky8:
+    name: xschem + CORE (Rocky Linux 8)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     container:
       image: rockylinux:8
 
@@ -38,17 +38,48 @@ jobs:
           restore-keys: |
             capnp-linux-rocky8-v1-
 
-      - name: Build coretcl.so
-        env:
-          COMMONDB_ROOT: ${{ github.workspace }}/CommonDB
-          XSCHEM_ROOT: ${{ github.workspace }}/XSchem-coredb
+      - name: Bootstrap Cap'n Proto
         run: |
+          COMMONDB_ROOT="$GITHUB_WORKSPACE/CommonDB"
+          sed -i 's/\r$//' "$COMMONDB_ROOT/scripts/build_capnp_linux.sh"
+          CAPNP_SKIP_CHECK=1 bash "$COMMONDB_ROOT/scripts/build_capnp_linux.sh" \
+            "https://github.com/capnproto/capnproto.git" branch master "" "" \
+            "$COMMONDB_ROOT/third_party/capnproto-linux" \
+            "$COMMONDB_ROOT/third_party/capnp-install-linux"
+
+      - name: Build and install xschem
+        run: |
+          export XSCHEM_ROOT="$GITHUB_WORKSPACE/XSchem-coredb"
+          export INSTALL_PREFIX="$XSCHEM_ROOT/dist-install"
+          sed -i 's/\r$//' "$XSCHEM_ROOT/scripts/build-xschem-ci.sh"
+          bash "$XSCHEM_ROOT/scripts/build-xschem-ci.sh"
+
+      - name: Build coretcl.so
+        run: |
+          export XSCHEM_ROOT="$GITHUB_WORKSPACE/XSchem-coredb"
+          export COMMONDB_ROOT="$GITHUB_WORKSPACE/CommonDB"
           sed -i 's/\r$//' "$XSCHEM_ROOT/build-core-tcl.sh" "$COMMONDB_ROOT/scripts/build_capnp_linux.sh"
           bash "$XSCHEM_ROOT/build-core-tcl.sh"
           test -f "$XSCHEM_ROOT/integrations/coretcl.so"
 
-      - name: Upload coretcl.so
+      - name: Verify binaries
+        run: |
+          PREFIX="$GITHUB_WORKSPACE/XSchem-coredb/dist-install"
+          test -x "$PREFIX/bin/xschem"
+          test -f "$GITHUB_WORKSPACE/XSchem-coredb/integrations/coretcl.so"
+
+      - name: Package portable bundle
+        run: |
+          export XSCHEM_ROOT="$GITHUB_WORKSPACE/XSchem-coredb"
+          export CAPNP_ROOT="$GITHUB_WORKSPACE/CommonDB/third_party/capnp-install-linux"
+          sed -i 's/\r$//' "$XSCHEM_ROOT/scripts/package_xschem_linux_bundle.sh"
+          bash "$XSCHEM_ROOT/scripts/package_xschem_linux_bundle.sh" \
+            "$XSCHEM_ROOT/dist-install" \
+            "$XSCHEM_ROOT/xschem-rocky8-bundle.tar.gz" \
+            "Rocky Linux 8"
+
+      - name: Upload xschem bundle
         uses: actions/upload-artifact@v4
         with:
-          name: coretcl-rocky8
-          path: XSchem-coredb/integrations/coretcl.so
+          name: xschem-rocky8
+          path: XSchem-coredb/xschem-rocky8-bundle.tar.gz
