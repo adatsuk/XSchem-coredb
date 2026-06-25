@@ -11,14 +11,12 @@ if [[ ! -d "$SRC" ]]; then
   exit 1
 fi
 
-find "$SRC" -type f \( -name '*.sh' -o -name 'configure' -o -name 'Makefile.in' -o -name '*.awk' \) \
+find "$SRC" -type f \( -name '*.sh' -o -name 'configure' -o -name 'Makefile' -o -name 'Makefile.in' -o -name '*.awk' \) \
   -exec sed -i 's/\r$//' {} +
 
-cd "$SRC"
-chmod +x configure
-./configure --prefix="$PREFIX"
-make -j"$(nproc)"
-make install
+(cd "$SRC" && chmod +x configure && ./configure --prefix="$PREFIX")
+make -C "$SRC" -j"$(nproc)"
+make -C "$SRC" install
 
 test -x "$PREFIX/bin/xschem"
 echo "Installed xschem to $PREFIX/bin/xschem"
