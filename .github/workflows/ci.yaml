@@ -54,6 +54,7 @@ jobs:
         with:
           repository: IHP-GmbH/CommonDB
           path: CommonDB
+          token: ${{ secrets.COMMONDDB_CHECKOUT_TOKEN }}
 
       - name: Install dependencies
         run: bash XSchem-coredb/scripts/ci-rocky8-deps.sh
