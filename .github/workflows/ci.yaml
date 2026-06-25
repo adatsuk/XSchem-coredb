@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-xschem-rocky8:
+    name: xschem (Rocky Linux 8)
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:8
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: bash scripts/ci-rocky8-deps.sh
+
+      - name: Configure and build xschem
+        working-directory: xschem-src
+        run: |
+          sed -i 's/\r$//' configure Makefile.in src/*.awk 2>/dev/null || true
+          ./configure --prefix=/usr/local
+          make -j"$(nproc)"
+
+      - name: Verify binary
+        working-directory: xschem-src
+        run: test -x src/xschem
+
+      - name: Upload xschem binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: xschem-rocky8
+          path: xschem-src/src/xschem
+
+  build-coretcl-rocky8:
+    name: coretcl.so (Rocky Linux 8 + CommonDB)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: rockylinux:8
+
+    steps:
+      - name: Checkout XSchem-coredb
+        uses: actions/checkout@v4
+        with:
+          path: XSchem-coredb
+
+      - name: Checkout CommonDB
+        uses: actions/checkout@v4
+        with:
+          repository: IHP-GmbH/CommonDB
+          path: CommonDB
+
+      - name: Install dependencies
+        run: bash XSchem-coredb/scripts/ci-rocky8-deps.sh
+
+      - name: Cache Cap'n Proto (Linux)
+        uses: actions/cache@v4
+        with:
+          path: CommonDB/third_party/capnp-install-linux
+          key: capnp-linux-rocky8-v1-${{ hashFiles('CommonDB/scripts/build_capnp_linux.sh') }}
+          restore-keys: |
+            capnp-linux-rocky8-v1-
+
+      - name: Build coretcl.so
+        env:
+          COMMONDB_ROOT: ${{ github.workspace }}/CommonDB
+          XSCHEM_ROOT: ${{ github.workspace }}/XSchem-coredb
+        run: |
+          sed -i 's/\r$//' "$XSCHEM_ROOT/build-core-tcl.sh" "$COMMONDB_ROOT/scripts/build_capnp_linux.sh"
+          bash "$XSCHEM_ROOT/build-core-tcl.sh"
+          test -f "$XSCHEM_ROOT/integrations/coretcl.so"
+
+      - name: Upload coretcl.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: coretcl-rocky8
+          path: XSchem-coredb/integrations/coretcl.so

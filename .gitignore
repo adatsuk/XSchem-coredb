@@ -1,0 +1,14 @@
+# Built CORE Tcl bridge (run build-core-tcl.sh)
+integrations/coretcl.so
+
+# Xschem build products
+xschem-src/src/xschem
+xschem-src/src/rawtovcd
+xschem-src/config.log
+xschem-src/config.status
+xschem-src/config.cache
+xschem-src/Makefile
+xschem-src/src/Makefile
+
+# Editor
+.vscode/

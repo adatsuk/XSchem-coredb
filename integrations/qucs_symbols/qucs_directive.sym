@@ -1,0 +1,17 @@
+v {xschem version=3.4.4 file_version=1.2}
+G {type=qucs_directive
+spice_ignore=true
+verilog_ignore=true
+vhdl_ignore=true
+format="@name @symname"
+template="name=d1 symname=.DC"}
+K {}
+V {}
+S {}
+E {}
+L 4 -40 -15 40 -15 {}
+L 4 -40 15 40 15 {}
+L 4 -40 -15 -40 15 {}
+L 4 40 -15 40 15 {}
+T {@symname} -35 -5 0 0 0.2 0.2 {}
+T {@name} 45 -18 0 0 0.15 0.15 {}

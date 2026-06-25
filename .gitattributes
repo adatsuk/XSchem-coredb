@@ -1,0 +1,3 @@
+# Shell scripts must use LF so WSL/bash does not see stray CR characters.
+*.sh text eol=lf
+*.bash text eol=lf

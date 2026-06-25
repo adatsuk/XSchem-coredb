@@ -1,0 +1,28 @@
+# Xschem workspace config with CORE in-process integration
+
+# LibMan/WSL: ignore corrupted per-file sizes in ~/.xschem/geometry (e.g. 1x1)
+set initial_geometry {1300x950}
+
+# CORE is authoritative; payload/*.sch is Xschem editor cache (export on open, import on save).
+
+set ::XSCHEM_ROOT [file normalize [file dirname [info script]]]
+
+if {[info exists ::env(COMMONDB_ROOT)] && $::env(COMMONDB_ROOT) ne ""} {
+  set ::CORE_ROOT [file normalize $::env(COMMONDB_ROOT)]
+} elseif {[info exists ::env(CORE_ROOT)] && $::env(CORE_ROOT) ne ""} {
+  set ::CORE_ROOT [file normalize $::env(CORE_ROOT)]
+} else {
+  set ::CORE_ROOT [file normalize [file join $::XSCHEM_ROOT .. CommonDB]]
+}
+
+set ::core_payload_dir [file join $::CORE_ROOT designs xschem payload]
+
+set XSCHEM_LIBRARY_PATH {}
+append XSCHEM_LIBRARY_PATH :$::core_payload_dir
+append XSCHEM_LIBRARY_PATH :[file join $::XSCHEM_ROOT integrations qucs_symbols]
+append XSCHEM_LIBRARY_PATH :$env(HOME)/.local/share/xschem/xschem_library/devices
+append XSCHEM_LIBRARY_PATH :$env(HOME)/.local/share/doc/xschem/examples
+
+set netlist_dir $::core_payload_dir
+
+source [file join $::XSCHEM_ROOT integrations core.tcl]
